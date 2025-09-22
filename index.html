@@ -57,6 +57,22 @@
   margin-right:0;              /* ← gapをゼロにして線と文字を一体化 */
 }
 .headnav a:hover{ opacity:.8; }
+  /* スマホ最適化：線と文字の間隔を少し詰め、見た目を均一に */
+@media (max-width: 480px){
+  .headnav{
+    justify-content:center;     /* モバイルは中央寄せが綺麗 */
+    flex-wrap:wrap;
+    row-gap:6px;
+  }
+  .headnav a{
+    padding:0 10px;             /* 文字と線の間隔（好みで±2pxどうぞ） */
+    font-size:13px;
+    line-height:1;              /* 行間のブレ防止 */
+  }
+  .headnav a:not(:last-child){
+    border-right:1px solid #bdbdbd; /* 区切り線を細めに */
+  }
+}
   /* ラップ＆カード */
   .wrap{
     min-height:100svh;
