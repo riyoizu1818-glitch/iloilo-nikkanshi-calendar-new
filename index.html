@@ -158,12 +158,29 @@
     background:#2ea66e; color:#fff; font-weight:700; font-size:13px; text-decoration:none;
     box-shadow:0 2px 6px rgba(0,0,0,.12);
   }
-  .home-btn{
-    display:inline-flex; width:34px; height:34px; border-radius:50%;
-    align-items:center; justify-content:center; text-decoration:none;
-    background:#4CAF7D; color:#fff; font-size:18px;
-    box-shadow:0 2px 6px rgba(0,0,0,.12);
-  }
+/* pill型ホームボタン */
+.home-btn{
+  display:inline-block;
+  padding:6px 14px;
+  border-radius:999px;       /* ← pill型に */
+  background:#2ea66e;        /* ← グリーン */
+  color:#fff;
+  font-weight:700;
+  font-size:13px;
+  text-decoration:none;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+}
+
+/* 使い方リンク（少し太め＆濃いグレー） */
+.topbar-left a{
+  display:inline-block;
+  margin-right:14px;
+  font-size:13px;
+  font-weight:700;       /* ←太め */
+  color:#444;            /* ←濃いグレー */
+  text-decoration:none;
+}
+.topbar-left a::before{ content:"▶︎ "; color:#666; margin-right:2px; }
 
   /* モバイル */
   @media (max-width:420px){
@@ -178,16 +195,6 @@
     .home-btn{ width:30px; height:30px; font-size:16px; }
   }
 
-  /* 右下の月干支ボタン */
-  .ilo-month-btn{
-    position:fixed; right:6px; bottom:6px; z-index:9999;
-  }
-  .ilo-month-btn a{
-    display:inline-block; padding:4px 10px; font-size:11px; border-radius:18px;
-    background:#2ea66e; color:#fff; font-weight:600; text-decoration:none;
-    box-shadow:0 1px 4px rgba(0,0,0,.15);
-  }
-  .ilo-month-btn a:hover{ opacity:.85; }
 </style>
 </head>
 <body>
@@ -233,13 +240,7 @@
     </div>
   </div>
 
-  <!-- 右下の月干支一覧ボタン -->
-  <div class="ilo-month-btn">
-    <a href="https://izuchan.com/2025-month-kanshi-list/" target="_blank" rel="noopener">
-      月干支一覧
-    </a>
-  </div>
-
+  
 <script>
   /* 干支データ */
   const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
