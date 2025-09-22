@@ -150,6 +150,45 @@
   }
  
 </style>
+  <style>
+/* ====== ここから上書き・追加（軽く圧縮版） ====== */
+
+/* セルの高さ・内側余白を少し詰める（全体） */
+.cal td{
+  height: 68px;              /* 既存:78px → -10px */
+  padding: 5px 5px 3px;      /* 既存:6px 6px 4px → ちょい圧縮 */
+}
+
+/* 日付数字と干支の上下バランスを微調整 */
+.daynum{ top: 5px; left: 6px; }
+.kanshi{ margin-top: 16px; font-size: 17px; }   /* 18px→17px（視認性そのまま） */
+.reading{ font-size: 9.5px; }                   /* 10px→9.5px（僅かに圧縮） */
+
+/* 上部バーの余白や文字サイズを控えめに */
+.monthbar{ margin: 2px 0 6px; min-height: 40px; }
+.centerhead{ gap: 8px; }
+.year{ font-size: 15px; }
+.m-num{ font-size: 52px; }    /* 56px→52px */
+.m-kanji{ font-size: 13px; }
+
+/* 曜日見出しの余白もほんの少しだけ詰める */
+.cal thead th{ padding: 6px 0; }  /* 8px→6px */
+
+/* モバイルはもう一段だけ圧縮（見やすさはキープ） */
+@media (max-width: 420px){
+  .cal td{ height: 62px; padding: 4px 4px 3px; }
+  .kanshi{ font-size: 16px; margin-top: 14px; }
+  .reading{ font-size: 9px; }
+  .brand{ font-size: 19px; }    /* タイトルも1ptだけ控えめに */
+  .m-num{ font-size: 46px; }    /* 既存と同値だが他とバランス */
+  .monthbar{ min-height: 38px; }
+}
+
+/* 今日ハイライトはそのまま、薄い端末でも見えやすく */
+.cal td.today.highlight{ background: var(--todaybg); }
+
+/* ====== ここまで上書き・追加 ====== */
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -181,9 +220,9 @@
         <tbody id="cal-body"></tbody>
       </table>
 
-      <div class="nav">
+     <!-- <div class="nav">
         <a class="btn" href="index.html">🔍日干支チェッカーへ ▶︎ </a>
-      </div>
+      </div>-->
     </div>
   </div>
 
