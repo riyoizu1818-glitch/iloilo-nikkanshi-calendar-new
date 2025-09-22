@@ -15,9 +15,6 @@
     --todaybg:rgba(244,246,144,.989);
     --nav-btn-bg:#ff68b6;          /* 下のピンクボタン */
     --nav-btn-fg:#fff;
-
-    --pill-green:#6abf69;          /* 🏠 ピル色 */
-    --pill-orange:#f39c12;         /* 月干支一覧 ピル色 */
   }
 
   html,body{margin:0;padding:0;color:var(--ink);-webkit-text-size-adjust:100%;}
@@ -27,36 +24,26 @@
     text-align:center;
   }
 
-  /* 上ナビ（使い方・右側ボタン） */
-  .topbar{
+  /* ── 右上：テキストのヘッダーメニュー ── */
+  .headnav{
     width:min(720px,92vw);
-    margin:0 auto;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:10px 0 0;              /* 余白は控えめに */
+    margin:8px auto 0;
+    display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap;
+    gap:14px;
+    font-family:'Futura','Avenir Next','Montserrat',sans-serif;
+    font-weight:800; letter-spacing:.02em; font-size:14px;
   }
-  .topbar-left a{
-    display:inline-block;
-    margin-right:14px;
-    font-size:14px;
-    font-weight:700;               /* 希望の太さ */
-    color:#666;                    /* やや濃いグレー */
-    text-decoration:none;
+  .headnav a{
+    color:#3d3d3d; text-decoration:none; padding:4px 6px; position:relative;
   }
-  .topbar-left a::before{ content:"▶︎ "; color:#666; margin-right:2px; }
+  .headnav a + a{ margin-left:12px; }
+  .headnav a + a::before{
+    content:"|"; color:#c7c7c7; position:absolute; left:-10px; top:50%;
+    transform:translateY(-50%);
+  }
+  .headnav a:hover{ opacity:.8; }
 
-  .topbar-right{ display:flex; align-items:center; gap:10px; }
-  .pill{
-    display:inline-block;
-    padding:6px 12px;
-    border-radius:999px;
-    color:#fff; font-weight:700; font-size:13px; text-decoration:none;
-    box-shadow:0 2px 6px rgba(0,0,0,.12);
-    line-height:1;
-  }
-  .pill-month{ background:var(--pill-orange); }  /* 月干支一覧（オレンジ） */
-  .pill-home { background:var(--pill-green); }   /* 🏠（グリーン） */
-
-  /* ラップ＆カード（上の余白は控えめ） */
+  /* ラップ＆カード */
   .wrap{
     min-height:100svh;
     display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
@@ -156,8 +143,9 @@
 
   /* モバイル微調整 */
   @media (max-width:420px){
-    .topbar-left a{ font-size:12px; margin-right:10px; }
-    .pill{ padding:5px 10px; font-size:12px; }
+    .headnav{ gap:10px; font-size:13px; }
+    .headnav a + a{ margin-left:10px; }
+    .headnav a + a::before{ left:-8px; }
 
     .cal td{ height:62px; padding:4px 4px 3px; }
     .kanshi{ font-size:16px; margin-top:14px; }
@@ -170,15 +158,11 @@
 </head>
 <body>
 
-  <!-- 上部ナビ -->
-  <div class="topbar">
-    <div class="topbar-left">
-      <a href="https://izuchan.com/iloilo-calendar-sestumei/"> 日干支カレンダーの使い方 </a>
-    </div>
-    <div class="topbar-right">
-      <a class="pill pill-month" href="https://izuchan.com/gekkanshi-ichiran-2025/">月干支一覧</a>
-      <a class="pill pill-home"  href="https://izuchan.com/">🏠</a>
-    </div>
+  <!-- 右上ヘッダーメニュー（テキスト） -->
+  <div class="headnav">
+    <a href="https://izuchan.com/iloilo-calendar-sestumei/">使い方</a>
+    <a href="https://izuchan.com/gekkanshi-ichiran-2025/">月干支一覧</a>
+    <a href="https://izuchan.com/">HOME</a>
   </div>
 
   <div class="wrap">
@@ -247,7 +231,7 @@
     mmNum.textContent = month;
 
     const first = new Date(year, month-1, 1);
-    const lastDay = new Date(year, month, 0).getDate();
+    theLast = new Date(year, month, 0).getDate();
     const startWeek = first.getDay();
 
     calBody.innerHTML = '';
@@ -259,7 +243,7 @@
 
         if(r===0 && c<startWeek){
           td.className = 'empty';
-        } else if(day <= lastDay){
+        } else if(day <= theLast){
           const date = new Date(year, month-1, day);
           const idx  = kanshiIndexFromDate(date);
 
@@ -292,10 +276,9 @@
         tr.appendChild(td);
       }
       calBody.appendChild(tr);
-      if(day > lastDay) break;
+      if(day > theLast) break;
     }
 
-    /* 今日セルをふわっと点灯 */
     setTimeout(()=>{
       const todayCell = document.querySelector(".today");
       if(todayCell) todayCell.classList.add("highlight");
@@ -334,7 +317,6 @@
     if(supportsMonth()){ monthInput.value = `${y}-${String(m).padStart(2,'0')}`; }
   });
 
-  /* 初期表示：今日 */
   (function(){
     const t = new Date();
     const yyyy = t.getFullYear();
