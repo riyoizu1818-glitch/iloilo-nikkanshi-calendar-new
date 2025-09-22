@@ -189,9 +189,49 @@
 .cal td.today.highlight{ background: var(--todaybg); }
 
 /* ====== ここまで上書き・追加 ====== */
+    /* ─── 上ナビ（使い方・ホーム・月干支一覧） ─── */
+.topbar{
+  width:min(720px,92vw);
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:8px; 
+}
+.topbar-left a{
+  display:inline-block; margin-right:14px;
+  font-size:13px; font-weight:600; color:#333; text-decoration:none;
+}
+.topbar-left a::before{ content:"▶︎ "; color:#888; margin-right:2px; }
+
+.topbar-right{ display:flex; align-items:center; gap:10px; }
+.pill{
+  display:inline-block; padding:6px 12px; border-radius:999px;
+  background:#2ea66e; color:#fff; font-weight:700; font-size:13px; text-decoration:none;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+}
+.home-btn{
+  display:inline-flex; width:34px; height:34px; border-radius:50%;
+  align-items:center; justify-content:center; text-decoration:none;
+  background:#4CAF7D; color:#fff; font-size:18px;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+}
+
+@media (max-width:420px){
+  .topbar-left a{ font-size:12px; margin-right:10px; }
+  .pill{ padding:5px 10px; font-size:12px; }
+  .home-btn{ width:30px; height:30px; font-size:16px; }
+}
 </style>
 </head>
 <body>
+  <div class="topbar">
+  <div class="topbar-left">
+    <a href="https://izuchan.com/iloilo-checker-setsumei/">チェッカーの使い方</a>
+    <a href="https://izuchan.com/iloilo-calendar-setsumei/">カレンダーの使い方</a>
+  </div>
+  <div class="topbar-right">
+    <a class="pill" href="https://izuchan.com/2025-month-kanshi-list/">月干支一覧</a>
+    <a class="home-btn" href="https://izuchan.com/">🏠</a>
+  </div>
+</div>
   <div class="wrap">
     <div class="card">
       <div class="brand">ilo.ilo 干支calendar</div>
