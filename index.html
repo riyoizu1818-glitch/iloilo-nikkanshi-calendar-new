@@ -27,7 +27,7 @@
   .wrap{
     min-height:100svh;
     display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-    padding:40px 16px calc(24px + env(safe-area-inset-bottom));
+    padding:24px 16px calc(24px + env(safe-area-inset-bottom)); /* 上を40→24pxに変更 */
     gap:14px;
   }
   .card{
@@ -38,7 +38,7 @@
     padding:14px 14px 18px;
     backdrop-filter:blur(2px);
     position:relative;
-    margin-top:8px; /* ← これを追加 */
+    margin-top:4px; /* 8px→4px */
   }
 
   .brand{
@@ -66,7 +66,7 @@
   .m-num{ font-size:56px; line-height:1; }
   .m-kanji{ font-size:14px; line-height:1; }
 
-  /* 年月▼ボックス（元のまま） */
+  /* 年月▼ボックス */
   .monthpick{
     position:relative; display:inline-block;
     border:1px solid #cfd6e0; border-radius:6px; background:#fff;
@@ -82,7 +82,7 @@
     -webkit-appearance:none; cursor:pointer;
   }
 
-  /* ◀︎ / ▶︎ ボタン（端固定のまま） */
+  /* ◀︎ / ▶︎ ボタン */
   .edge{
     position:absolute; top:50%; transform:translateY(-50%);
     background:transparent; border:none; cursor:pointer;
@@ -104,34 +104,32 @@
     background:#fff;
   }
   .cal thead th{
-    font-weight:600; font-size:12px; padding:8px 0;
+    font-weight:600; font-size:12px; padding:6px 0; /* 8px→6px */
     border-bottom:1px solid var(--grid);
   }
   .w-sun{ color:var(--sun); }
   .w-sat{ color:var(--sat); }
 
   .cal td{
-    height:78px;
+    height:68px;              /* 78px→68px */
     border-right:1px solid var(--grid);
     border-bottom:1px solid var(--grid);
     vertical-align:top;
-    padding:6px 6px 4px;
+    padding:5px 5px 3px;      /* 6px 6px 4px→詰め */
     position:relative;
   }
   .cal tr td:last-child{ border-right:none; }
 
   .daynum{
     font-weight:700; font-size:12px; line-height:1;
-    position:absolute; left:6px; top:6px;
+    position:absolute; left:6px; top:5px; /* topを少し詰め */
   }
-  /* 右上の十干アイコン（追加） */
   .emoji{ position:absolute; right:3px; top:2px; font-size:12.5px; }
 
-  .kanshi{ margin-top:18px; font-size:18px; font-weight:700; }
-  .reading{ font-size:10px; color:var(--sub); margin-top:2px; }
+  .kanshi{ margin-top:16px; font-size:17px; font-weight:700; }
+  .reading{ font-size:9.5px; color:var(--sub); margin-top:2px; }
   .empty{ background:#fafafa; }
 
-  /* 今日のセル：ふわっと点灯（初期は透明 → .highlightで色） */
   .cal td.today{ background:transparent; transition:background-color .8s ease; }
   .cal td.today.highlight{ background:var(--todaybg); }
 
@@ -142,113 +140,81 @@
     padding:8px 14px; border-radius:999px; display:inline-block;
   }
 
-  @media (max-width:420px){
-    .cal td{ height:72px; }
-    .kanshi{ font-size:16px; }
-    .brand{ font-size:20px; }
-    .m-num{ font-size:46px; }
-    .m-kanji{ font-size:13px; }
+  /* 上ナビ（使い方・ホーム・月干支一覧） */
+  .topbar{
+    width:min(720px,92vw);
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:6px;
   }
- 
-</style>
-  <style>
-/* ====== ここから上書き・追加（軽く圧縮版） ====== */
+  .topbar-left a{
+    display:inline-block; margin-right:14px;
+    font-size:13px; font-weight:600; color:#333; text-decoration:none;
+  }
+  .topbar-left a::before{ content:"▶︎ "; color:#888; margin-right:2px; }
 
-/* セルの高さ・内側余白を少し詰める（全体） */
-.cal td{
-  height: 68px;              /* 既存:78px → -10px */
-  padding: 5px 5px 3px;      /* 既存:6px 6px 4px → ちょい圧縮 */
-}
+  .topbar-right{ display:flex; align-items:center; gap:10px; }
+  .pill{
+    display:inline-block; padding:6px 12px; border-radius:999px;
+    background:#2ea66e; color:#fff; font-weight:700; font-size:13px; text-decoration:none;
+    box-shadow:0 2px 6px rgba(0,0,0,.12);
+  }
+  .home-btn{
+    display:inline-flex; width:34px; height:34px; border-radius:50%;
+    align-items:center; justify-content:center; text-decoration:none;
+    background:#4CAF7D; color:#fff; font-size:18px;
+    box-shadow:0 2px 6px rgba(0,0,0,.12);
+  }
 
-/* 日付数字と干支の上下バランスを微調整 */
-.daynum{ top: 5px; left: 6px; }
-.kanshi{ margin-top: 16px; font-size: 17px; }   /* 18px→17px（視認性そのまま） */
-.reading{ font-size: 9.5px; }                   /* 10px→9.5px（僅かに圧縮） */
+  /* モバイル */
+  @media (max-width:420px){
+    .cal td{ height:62px; padding:4px 4px 3px; }
+    .kanshi{ font-size:16px; margin-top:14px; }
+    .reading{ font-size:9px; }
+    .brand{ font-size:19px; }
+    .m-num{ font-size:46px; }
+    .monthbar{ min-height:38px; }
+    .topbar-left a{ font-size:12px; margin-right:10px; }
+    .pill{ padding:5px 10px; font-size:12px; }
+    .home-btn{ width:30px; height:30px; font-size:16px; }
+  }
 
-/* 上部バーの余白や文字サイズを控えめに */
-.monthbar{ margin: 2px 0 6px; min-height: 40px; }
-.centerhead{ gap: 8px; }
-.year{ font-size: 15px; }
-.m-num{ font-size: 52px; }    /* 56px→52px */
-.m-kanji{ font-size: 13px; }
-
-/* 曜日見出しの余白もほんの少しだけ詰める */
-.cal thead th{ padding: 6px 0; }  /* 8px→6px */
-
-/* モバイルはもう一段だけ圧縮（見やすさはキープ） */
-@media (max-width: 420px){
-  .cal td{ height: 62px; padding: 4px 4px 3px; }
-  .kanshi{ font-size: 16px; margin-top: 14px; }
-  .reading{ font-size: 9px; }
-  .brand{ font-size: 19px; }    /* タイトルも1ptだけ控えめに */
-  .m-num{ font-size: 46px; }    /* 既存と同値だが他とバランス */
-  .monthbar{ min-height: 38px; }
-}
-
-/* 今日ハイライトはそのまま、薄い端末でも見えやすく */
-.cal td.today.highlight{ background: var(--todaybg); }
-
-/* ====== ここまで上書き・追加 ====== */
-    /* ─── 上ナビ（使い方・ホーム・月干支一覧） ─── */
-.topbar{
-  width:min(720px,92vw);
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:8px; 
-}
-.topbar-left a{
-  display:inline-block; margin-right:14px;
-  font-size:13px; font-weight:600; color:#333; text-decoration:none;
-}
-.topbar-left a::before{ content:"▶︎ "; color:#888; margin-right:2px; }
-
-.topbar-right{ display:flex; align-items:center; gap:10px; }
-.pill{
-  display:inline-block; padding:6px 12px; border-radius:999px;
-  background:#2ea66e; color:#fff; font-weight:700; font-size:13px; text-decoration:none;
-  box-shadow:0 2px 6px rgba(0,0,0,.12);
-}
-.home-btn{
-  display:inline-flex; width:34px; height:34px; border-radius:50%;
-  align-items:center; justify-content:center; text-decoration:none;
-  background:#4CAF7D; color:#fff; font-size:18px;
-  box-shadow:0 2px 6px rgba(0,0,0,.12);
-}
-
-@media (max-width:420px){
-  .topbar-left a{ font-size:12px; margin-right:10px; }
-  .pill{ padding:5px 10px; font-size:12px; }
-  .home-btn{ width:30px; height:30px; font-size:16px; }
-}
+  /* 右下の月干支ボタン */
+  .ilo-month-btn{
+    position:fixed; right:6px; bottom:6px; z-index:9999;
+  }
+  .ilo-month-btn a{
+    display:inline-block; padding:4px 10px; font-size:11px; border-radius:18px;
+    background:#2ea66e; color:#fff; font-weight:600; text-decoration:none;
+    box-shadow:0 1px 4px rgba(0,0,0,.15);
+  }
+  .ilo-month-btn a:hover{ opacity:.85; }
 </style>
 </head>
 <body>
   <div class="topbar">
-  <div class="topbar-left">
-    <a href="https://izuchan.com/iloilo-checker-setsumei/">チェッカーの使い方</a>
-    <a href="https://izuchan.com/iloilo-calendar-setsumei/">カレンダーの使い方</a>
+    <div class="topbar-left">
+      <a href="https://izuchan.com/iloilo-calendar-setsumei/">カレンダーの使い方</a>
+    </div>
+    <div class="topbar-right">
+      <a class="pill" href="https://izuchan.com/2025-month-kanshi-list/">月干支一覧</a>
+      <a class="home-btn" href="https://izuchan.com/">🏠</a>
+    </div>
   </div>
-  <div class="topbar-right">
-    <a class="pill" href="https://izuchan.com/2025-month-kanshi-list/">月干支一覧</a>
-    <a class="home-btn" href="https://izuchan.com/">🏠</a>
-  </div>
-</div>
+
   <div class="wrap">
     <div class="card">
       <div class="brand">ilo.ilo 干支calendar</div>
 
       <div class="monthbar">
         <button class="edge edge-left"  id="prevBtn" aria-label="前の月へ">◀︎</button>
-
         <div class="centerhead">
           <span class="year" id="yy">2025</span>
           <span class="month"><span class="m-num" id="mmNum">9</span><span class="m-kanji">月</span></span>
-
           <span class="monthpick">
             <span class="label">年月 ▼</span>
             <input type="month" id="monthInput" />
           </span>
         </div>
-
         <button class="edge edge-right" id="nextBtn" aria-label="次の月へ">▶︎</button>
       </div>
 
@@ -261,10 +227,17 @@
         <tbody id="cal-body"></tbody>
       </table>
 
-     <div class="nav">
-        <a class="btn" href="https://izuchan.com/iloilo-nikkanshi-checker/">🔍日干支チェッカーへ ▶︎ </a>
+      <div class="nav">
+        <a class="btn" href="https://izuchan.com/iloilo-nikkanshi-checker/">🔍日干支チェッカーへ ▶︎</a>
       </div>
     </div>
+  </div>
+
+  <!-- 右下の月干支一覧ボタン -->
+  <div class="ilo-month-btn">
+    <a href="https://izuchan.com/2025-month-kanshi-list/" target="_blank" rel="noopener">
+      月干支一覧
+    </a>
   </div>
 
 <script>
@@ -274,34 +247,29 @@
   const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
   const branchesReading = ["ね","うし","とら","う","たつ","み","うま","ひつじ","さる","とり","いぬ","い"];
 
-  /* 十干→アイコン */
   const stemEmoji = {
     "甲":"🌳","乙":"🪻","丙":"☀️","丁":"🔥","戊":"⛰️",
     "己":"🪏","庚":"🪨","辛":"💍","壬":"🌊","癸":"☔️"
   };
 
-  /* 干支計算 */
   const baseDate = new Date(1984, 2, 31); // 1984/3/31 甲子
   function kanshiIndexFromDate(date){
     const diffDays = Math.floor((date - baseDate) / (1000*60*60*24));
     return (diffDays % 60 + 60) % 60;
   }
 
-  /* DOM */
   let currentYear, currentMonth;
   const yy = document.getElementById('yy');
   const mmNum = document.getElementById('mmNum');
   const calBody = document.getElementById('cal-body');
   const monthInput = document.getElementById('monthInput');
 
-  /* month対応検出（PCでも安心） */
   function supportsMonth(){
     const i = document.createElement('input');
     i.setAttribute('type','month');
     return i.type === 'month';
   }
 
-  /* カレンダー描画 */
   function renderCalendar(year, month){
     currentYear = year; currentMonth = month;
     yy.textContent = year;
@@ -330,11 +298,9 @@
           const rubi = stemsReading[idx % 10] + branchesReading[idx % 12];
           const emoji = stemEmoji[stem] || "";
 
-          /* 週末色（元のまま） */
           if(c===0){ td.style.color = getComputedStyle(document.documentElement).getPropertyValue('--sun'); }
           if(c===6){ td.style.color = getComputedStyle(document.documentElement).getPropertyValue('--sat'); }
 
-          /* 今日判定 */
           const today = new Date();
           if(date.getFullYear()===today.getFullYear() &&
              date.getMonth()===today.getMonth() &&
@@ -342,7 +308,6 @@
             td.classList.add('today');
           }
 
-          /* 中身：右上にemojiを追加 */
           td.innerHTML = `
             <div class="daynum">${day}</div>
             <div class="emoji">${emoji}</div>
@@ -359,14 +324,12 @@
       if(day > lastDay) break;
     }
 
-    /* 今日のセルをふわっと点灯 */
     setTimeout(()=>{
       const todayCell = document.querySelector(".today");
       if(todayCell) todayCell.classList.add("highlight");
     },100);
   }
 
-  /* 年月入力のイベント（対応/非対応で分岐） */
   if (supportsMonth()){
     monthInput.addEventListener('change', ()=>{
       if(!monthInput.value) return;
@@ -386,7 +349,6 @@
     });
   }
 
-  /* 前後ボタン（元のまま） */
   document.getElementById('prevBtn').addEventListener('click', ()=>{
     let y = currentYear, m = currentMonth - 1;
     if(m < 1){ m = 12; y--; }
@@ -400,7 +362,6 @@
     if(supportsMonth()){ monthInput.value = `${y}-${String(m).padStart(2,'0')}`; }
   });
 
-  /* 初期表示：今日の年月で描画＆入力にも反映 */
   (function(){
     const t = new Date();
     const yyyy = t.getFullYear();
