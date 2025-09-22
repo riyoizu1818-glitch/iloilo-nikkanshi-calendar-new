@@ -60,34 +60,34 @@
   /* === mobile only: 上ナビを右端に・コンパクト化 === */
 @media (max-width: 480px){
   .headnav{
-    justify-content:flex-end;     /* 右寄せ */
-    padding-right:10px;           /* 右端から少し逃す */
-    gap:0;                        /* 余白はセパレータで管理 */
-    white-space:nowrap;           /* 折り返し防止 */
-    align-items:center;           /* 垂直センター */
+    justify-content:flex-end;
+    padding-right:12px;
+    gap:0;
+    white-space:nowrap;
+    align-items:center;
   }
 
   .headnav a:link,
   .headnav a:visited{
-    color:#666;                   /* 常にグレー、紫にならない */
+    color:#666;
     text-decoration:none;
     font-size:13px;
     font-weight:700;
-    line-height:1;                /* 縦位置揃え */
-    padding:2px 4px;              /* ← 少しだけタイトに */
+    line-height:1;
+    padding:0 6px;               /* ← 左右に同じだけの余白 */
   }
-
   .headnav a:hover{ color:#333; opacity:.9; }
 
-  /* 区切り線（文字の中央に来るよう調整） */
+  /* 区切り線 */
   .headnav .sep{
-    width:1px; 
-    height:14px; 
+    width:1px;
+    height:14px;
     background:#bbb;
-    margin:0 4px;                 /* ← 線の間隔をぎゅっと */
+    margin:0;                    /* ← 余白は消す */
     align-self:center;
   }
 }
+
 
 /* とても狭い端末（iPhone SEなど）向け */
 @media (max-width: 360px){
