@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ilo.ilo 干支calendar</title>
+<style>
+  :root{
+    --ink:#333;
+    --grid:#dcdcdc;
+    --sun:#fc579c;              /* 日曜 */
+    --sat:#6585d0;              /* 土曜 */
+    --sub:#555;
+    --bgglass:rgba(255,255,255,.55);
+    --todaybg:rgba(244, 246, 144, 0.989); 
+    --nav-btn-bg:#ff68b6;     
+    --nav-btn-fg:#fff;
+  }
+
+  html,body{margin:0;padding:0;color:var(--ink);-webkit-text-size-adjust:100%;}
+  body{
+    font-family:'Hiragino Kaku Gothic ProN', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+    background:url('iloiloback.jpg') no-repeat center/cover;
+    text-align:center;
+  }
+
+  .wrap{
+    min-height:100svh;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    padding:24px 16px calc(24px + env(safe-area-inset-bottom));
+    gap:14px;
+  }
+  .card{
+    width:min(720px,92vw);
+    background:var(--bgglass);
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+    padding:14px 14px 18px;
+    backdrop-filter:blur(2px);
+    position:relative;
+  }
+
+  .brand{
+    font-family:'Futura','Avenir Next','Montserrat',sans-serif;
+    font-weight:900; letter-spacing:.02em;
+    font-size:22px; margin:2px 0 8px;
+  }
+
+  .monthbar{
+    position:relative;
+    display:flex; justify-content:center; align-items:center;
+    margin:4px 0 8px; min-height:44px;
+  }
+  .centerhead{
+    display:inline-flex; align-items:baseline; gap:10px;
+  }
+  .year{
+    font-family:'Futura','Avenir Next','Montserrat',sans-serif;
+    font-weight:600; font-size:16px; opacity:.85;
+  }
+  .month{
+    font-family:'Futura','Avenir Next','Montserrat',sans-serif;
+    font-weight:800; display:inline-flex; align-items:baseline; gap:4px;
+  }
+  .m-num{ font-size:56px; line-height:1; }
+  .m-kanji{ font-size:14px; line-height:1; }
+
+  /* 年月▼ボックス（元のまま） */
+  .monthpick{
+    position:relative; display:inline-block;
+    border:1px solid #cfd6e0; border-radius:6px; background:#fff;
+    padding:2px 6px;
+    min-width:50px;
+    text-align:center;
+    font-size:11px; color:#333;
+  }
+  .monthpick .label{ pointer-events:none; }
+  .monthpick input[type="month"]{
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; border:0; background:transparent; appearance:none;
+    -webkit-appearance:none; cursor:pointer;
+  }
+
+  /* ◀︎ / ▶︎ ボタン（端固定のまま） */
+  .edge{
+    position:absolute; top:50%; transform:translateY(-50%);
+    background:transparent; border:none; cursor:pointer;
+    font-size:22px; line-height:1; color:var(--ink);
+    padding:12px; user-select:none;
+    transition:transform 0.15s ease;
+  }
+  .edge-left{ left:0; }
+  .edge-right{ right:0; }
+  .edge:active{ transform:translateY(-50%) scale(0.85); }
+
+  /* カレンダー表 */
+  .cal{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    border:1px solid var(--grid);
+    border-radius:8px; overflow:hidden;
+    background:#fff;
+  }
+  .cal thead th{
+    font-weight:600; font-size:12px; padding:8px 0;
+    border-bottom:1px solid var(--grid);
+  }
+  .w-sun{ color:var(--sun); }
+  .w-sat{ color:var(--sat); }
+
+  .cal td{
+    height:78px;
+    border-right:1px solid var(--grid);
+    border-bottom:1px solid var(--grid);
+    vertical-align:top;
+    padding:6px 6px 4px;
+    position:relative;
+  }
+  .cal tr td:last-child{ border-right:none; }
+
+  .daynum{
+    font-weight:700; font-size:12px; line-height:1;
+    position:absolute; left:6px; top:6px;
+  }
+  /* 右上の十干アイコン（追加） */
+  .emoji{ position:absolute; right:3px; top:2px; font-size:12.5px; }
+
+  .kanshi{ margin-top:18px; font-size:18px; font-weight:700; }
+  .reading{ font-size:10px; color:var(--sub); margin-top:2px; }
+  .empty{ background:#fafafa; }
+
+  /* 今日のセル：ふわっと点灯（初期は透明 → .highlightで色） */
+  .cal td.today{ background:transparent; transition:background-color .8s ease; }
+  .cal td.today.highlight{ background:var(--todaybg); }
+
+  .nav{ margin-top:12px; }
+  .nav .btn{
+    text-decoration:none; font-size:14px; font-weight:600;
+    background:var(--nav-btn-bg); color:var(--nav-btn-fg);
+    padding:8px 14px; border-radius:999px; display:inline-block;
+  }
+
+  @media (max-width:420px){
+    .cal td{ height:72px; }
+    .kanshi{ font-size:16px; }
+    .brand{ font-size:20px; }
+    .m-num{ font-size:46px; }
+    .m-kanji{ font-size:13px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">ilo.ilo 干支calendar</div>
+
+      <div class="monthbar">
+        <button class="edge edge-left"  id="prevBtn" aria-label="前の月へ">◀︎</button>
+
+        <div class="centerhead">
+          <span class="year" id="yy">2025</span>
+          <span class="month"><span class="m-num" id="mmNum">9</span><span class="m-kanji">月</span></span>
+
+          <span class="monthpick">
+            <span class="label">年月 ▼</span>
+            <input type="month" id="monthInput" />
+          </span>
+        </div>
+
+        <button class="edge edge-right" id="nextBtn" aria-label="次の月へ">▶︎</button>
+      </div>
+
+      <table class="cal" id="calendar">
+        <thead>
+          <tr>
+            <th class="w-sun">日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th class="w-sat">土</th>
+          </tr>
+        </thead>
+        <tbody id="cal-body"></tbody>
+      </table>
+
+      <div class="nav">
+        <a class="btn" href="index.html">🔍日干支チェッカーへ ▶︎ </a>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* 干支データ */
+  const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+  const stemsReading = ["きのえ","きのと","ひのえ","ひのと","つちのえ","つちのと","かのえ","かのと","みずのえ","みずのと"];
+  const branches = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+  const branchesReading = ["ね","うし","とら","う","たつ","み","うま","ひつじ","さる","とり","いぬ","い"];
+
+  /* 十干→アイコン */
+  const stemEmoji = {
+    "甲":"🌳","乙":"🪻","丙":"☀️","丁":"🔥","戊":"⛰️",
+    "己":"🌱","庚":"🪨","辛":"💍","壬":"🌊","癸":"☔️"
+  };
+
+  /* 干支計算 */
+  const baseDate = new Date(1984, 2, 31); // 1984/3/31 甲子
+  function kanshiIndexFromDate(date){
+    const diffDays = Math.floor((date - baseDate) / (1000*60*60*24));
+    return (diffDays % 60 + 60) % 60;
+  }
+
+  /* DOM */
+  let currentYear, currentMonth;
+  const yy = document.getElementById('yy');
+  const mmNum = document.getElementById('mmNum');
+  const calBody = document.getElementById('cal-body');
+  const monthInput = document.getElementById('monthInput');
+
+  /* month対応検出（PCでも安心） */
+  function supportsMonth(){
+    const i = document.createElement('input');
+    i.setAttribute('type','month');
+    return i.type === 'month';
+  }
+
+  /* カレンダー描画 */
+  function renderCalendar(year, month){
+    currentYear = year; currentMonth = month;
+    yy.textContent = year;
+    mmNum.textContent = month;
+
+    const first = new Date(year, month-1, 1);
+    const lastDay = new Date(year, month, 0).getDate();
+    const startWeek = first.getDay();
+
+    calBody.innerHTML = '';
+    let day = 1;
+    for(let r=0; r<6; r++){
+      const tr = document.createElement('tr');
+      for(let c=0; c<7; c++){
+        const td = document.createElement('td');
+
+        if(r===0 && c<startWeek){
+          td.className = 'empty';
+        } else if(day <= lastDay){
+          const date = new Date(year, month-1, day);
+          const idx  = kanshiIndexFromDate(date);
+
+          const stem = stems[idx % 10];
+          const branch = branches[idx % 12];
+          const k    = stem + branch;
+          const rubi = stemsReading[idx % 10] + branchesReading[idx % 12];
+          const emoji = stemEmoji[stem] || "";
+
+          /* 週末色（元のまま） */
+          if(c===0){ td.style.color = getComputedStyle(document.documentElement).getPropertyValue('--sun'); }
+          if(c===6){ td.style.color = getComputedStyle(document.documentElement).getPropertyValue('--sat'); }
+
+          /* 今日判定 */
+          const today = new Date();
+          if(date.getFullYear()===today.getFullYear() &&
+             date.getMonth()===today.getMonth() &&
+             date.getDate()===today.getDate()){
+            td.classList.add('today');
+          }
+
+          /* 中身：右上にemojiを追加 */
+          td.innerHTML = `
+            <div class="daynum">${day}</div>
+            <div class="emoji">${emoji}</div>
+            <div class="kanshi">${k}</div>
+            <div class="reading">${rubi}</div>
+          `;
+          day++;
+        } else {
+          td.className = 'empty';
+        }
+        tr.appendChild(td);
+      }
+      calBody.appendChild(tr);
+      if(day > lastDay) break;
+    }
+
+    /* 今日のセルをふわっと点灯 */
+    setTimeout(()=>{
+      const todayCell = document.querySelector(".today");
+      if(todayCell) todayCell.classList.add("highlight");
+    },100);
+  }
+
+  /* 年月入力のイベント（対応/非対応で分岐） */
+  if (supportsMonth()){
+    monthInput.addEventListener('change', ()=>{
+      if(!monthInput.value) return;
+      const [y,m] = monthInput.value.split('-').map(v=>+v);
+      renderCalendar(y,m);
+    });
+  } else {
+    monthInput.type = 'text';
+    monthInput.placeholder = 'YYYY-MM';
+    monthInput.addEventListener('change', ()=>{
+      const v = monthInput.value.trim();
+      const ok = /^\d{4}-(0[1-9]|1[0-2])$/.test(v);
+      if(ok){
+        const [y,m] = v.split('-').map(v=>+v);
+        renderCalendar(y,m);
+      }
+    });
+  }
+
+  /* 前後ボタン（元のまま） */
+  document.getElementById('prevBtn').addEventListener('click', ()=>{
+    let y = currentYear, m = currentMonth - 1;
+    if(m < 1){ m = 12; y--; }
+    renderCalendar(y,m);
+    if(supportsMonth()){ monthInput.value = `${y}-${String(m).padStart(2,'0')}`; }
+  });
+  document.getElementById('nextBtn').addEventListener('click', ()=>{
+    let y = currentYear, m = currentMonth + 1;
+    if(m > 12){ m = 1; y++; }
+    renderCalendar(y,m);
+    if(supportsMonth()){ monthInput.value = `${y}-${String(m).padStart(2,'0')}`; }
+  });
+
+  /* 初期表示：今日の年月で描画＆入力にも反映 */
+  (function(){
+    const t = new Date();
+    const yyyy = t.getFullYear();
+    const mm = t.getMonth()+1;
+    renderCalendar(yyyy, mm);
+    if(supportsMonth()){
+      monthInput.value = `${yyyy}-${String(mm).padStart(2,'0')}`;
+    }
+  })();
+</script>
+</body>
+</html>
