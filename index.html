@@ -48,17 +48,28 @@
 }
 /* 右上・テキストのヘッダーメニュー */
 .headnav{
-  width:100%;                        /* 横幅いっぱいにする */
+  width:min(720px,92vw);
+  margin:8px auto 0;
   display:flex;
-  justify-content:flex-end;          /* ←右寄せ！ */
+  justify-content:flex-end;
   align-items:center;
-  gap:14px;
   font-family:'Futura','Avenir Next','Montserrat',sans-serif;
   font-weight:700;
   letter-spacing:.02em;
   font-size:14px;
-  padding:8px 12px 0 0;              /* 右に少し余白 */
+  gap:0;  /* ← ここで余白はゼロに */
 }
+.headnav a{
+  color:#666;
+  text-decoration:none;
+  padding:0 12px;   /* ← 文字と線の間隔はここで調整 */
+  position:relative;
+}
+.headnav a:not(:last-child){
+  border-right:1px solid #aaa; /* ← 線を右側に付ける */
+  margin-right:0;              /* ← gapをゼロにして線と文字を一体化 */
+}
+.headnav a:hover{ opacity:.8; }
 
 }
   /* ラップ＆カード */
