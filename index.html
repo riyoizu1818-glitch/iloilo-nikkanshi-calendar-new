@@ -46,32 +46,20 @@
   font-size:14px;
   gap:0;  /* ← ここで余白はゼロに */
 }
-.headnav a{
-  color:#666;
-  text-decoration:none;
-  padding:0 12px;   /* ← 文字と線の間隔はここで調整 */
-  position:relative;
+/* 右上・テキストのヘッダーメニュー */
+.headnav{
+  width:100%;                        /* 横幅いっぱいにする */
+  display:flex;
+  justify-content:flex-end;          /* ←右寄せ！ */
+  align-items:center;
+  gap:14px;
+  font-family:'Futura','Avenir Next','Montserrat',sans-serif;
+  font-weight:700;
+  letter-spacing:.02em;
+  font-size:14px;
+  padding:8px 12px 0 0;              /* 右に少し余白 */
 }
-.headnav a:not(:last-child){
-  border-right:1px solid #aaa; /* ← 線を右側に付ける */
-  margin-right:0;              /* ← gapをゼロにして線と文字を一体化 */
-}
-.headnav a:hover{ opacity:.8; }
-  /* スマホ最適化：線と文字の間隔を少し詰め、見た目を均一に */
-@media (max-width: 480px){
-  .headnav{
-    justify-content:center;     /* モバイルは中央寄せが綺麗 */
-    flex-wrap:wrap;
-    row-gap:6px;
-  }
-  .headnav a{
-    padding:0 10px;             /* 文字と線の間隔（好みで±2pxどうぞ） */
-    font-size:13px;
-    line-height:1;              /* 行間のブレ防止 */
-  }
-  .headnav a:not(:last-child){
-    border-right:1px solid #bdbdbd; /* 区切り線を細めに */
-  }
+
 }
   /* ラップ＆カード */
   .wrap{
