@@ -57,6 +57,41 @@
   margin-right:0;              /* ← gapをゼロにして線と文字を一体化 */
 }
 .headnav a:hover{ opacity:.8; }
+  /* === mobile only: 上ナビを右端に・コンパクト化 === */
+@media (max-width: 480px){
+  .headnav{
+    justify-content:flex-end;     /* 右寄せ */
+    padding-right:10px;           /* 右端から少し逃す */
+    gap:0;                        /* 余白はセパレータで管理 */
+    white-space:nowrap;           /* 折り返し防止 */
+    align-items:center;           /* 垂直センター */
+  }
+  .headnav a:link,
+  .headnav a:visited{
+    color:#555;                   /* 既読でも紫にならない */
+    text-decoration:none;
+    font-size:13px;
+    font-weight:700;
+    line-height:1;                /* ベースライン揃え */
+    padding:4px 6px;              /* 文字と縦線のバランス */
+  }
+  .headnav a:hover{ color:#333; opacity:.9; }
+
+  /* 区切り線：極細、文字の中央に */
+  .headnav .sep{
+    width:1px; height:14px;
+    background:#bbb;
+    margin:0 6px;                 /* 線と文字の横間隔 */
+    align-self:center;
+  }
+}
+
+/* とても狭い端末向けの微調整（任意） */
+@media (max-width: 360px){
+  .headnav a:link,
+  .headnav a:visited{ font-size:12px; padding:3px 5px; }
+  .headnav .sep{ height:13px; margin:0 5px; }
+}
   /* ラップ＆カード */
   .wrap{
     min-height:100svh;
