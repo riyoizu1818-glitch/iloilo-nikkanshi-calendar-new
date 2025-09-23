@@ -24,67 +24,28 @@
     text-align:center;
   }
 
-  /* ── 右上：テキストのヘッダーメニュー ── */
+  /* ── 右上：テキストのヘッダーメニュー（シンプル版） ── */
   .headnav{
     width:min(720px,92vw);
     margin:8px auto 0;
-    display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap;
-    gap:14px;
-    font-family:'Futura','Avenir Next','Montserrat',sans-serif;
-    font-weight:700; letter-spacing:.02em; font-size:14px;
-  }
- /* ヘッダーメニュー */
-.headnav{
-  width:min(720px,92vw);
-  margin:8px auto 0;
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  font-family:'Futura','Avenir Next','Montserrat',sans-serif;
-  font-weight:700;
-  letter-spacing:.02em;
-  font-size:14px;
-  gap:0;  /* ← ここで余白はゼロに */
-}
-.headnav a{
-  color:#666;
-  text-decoration:none;
-  padding:0 12px;   /* ← 文字と線の間隔はここで調整 */
-  position:relative;
-}
-.headnav a:not(:last-child){
-  border-right:1px solid #aaa; /* ← 線を右側に付ける */
-  margin-right:0;              /* ← gapをゼロにして線と文字を一体化 */
-}
-.headnav a:hover{ opacity:.8; }
-  /* === mobile only: 上ナビを右端に・コンパクト化 === */
-@media (max-width: 480px){
-  .headnav{
-    justify-content:flex-end;   /* 右寄せ */
-    padding-right:15px;         /* 右端からの逃がし量 */
-    gap:0;                      /* 余白は線で管理 */
+    display:flex;
+    justify-content:flex-end;
     align-items:center;
-  }
-
-  /* テキストと線の“左右バランス”を決めるのはここ */
-  .headnav a{
-    font-size:13px;
+    font-family:'Futura','Avenir Next','Montserrat',sans-serif;
     font-weight:700;
+    letter-spacing:.02em;
+    font-size:14px;
+    color:#666;
+  }
+  .headnav a{
+    color:inherit;
+    text-decoration:none;
+    padding:0 10px;              /* 文字と区切りの間隔 */
     line-height:1;
-    padding:3px 7px;            /* ← 文字の左右余白：増やすと“文字だけ詰まる”感が消える */
-    letter-spacing:.01em;       /* ほんの少しだけ詰める（お好みで 0〜.02em） */
   }
+  .headnav a:hover{ color:#333; }
 
-  /* 区切り線（中央寄せ＆細く） */
-  .headnav .sep{
-    width:2px;
-    height:14px;
-    background:#bbb;
-    margin:0 5px;               /* ← 文字と線の間隔：ここを増減で“中央に見える”位置合わせ */
-    align-self:center;
-  }
-}
-  /* ラップ＆カード */
+  /* ---- ラップ＆カード ---- */
   .wrap{
     min-height:100svh;
     display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
@@ -182,11 +143,10 @@
     padding:8px 14px; border-radius:999px; display:inline-block;
   }
 
-  /* モバイル微調整 */
-  @media (max-width:420px){
-    .headnav{ gap:10px; font-size:13px; }
-    .headnav a + a{ margin-left:10px; }
-    .headnav a + a::before{ left:-8px; }
+  /* ── スマホだけ微調整（PCはそのまま） ── */
+  @media (max-width:480px){
+    .headnav{ padding-right:12px; }
+    .headnav a{ font-size:13px; padding:3px 7px; }
 
     .cal td{ height:62px; padding:4px 4px 3px; }
     .kanshi{ font-size:16px; margin-top:14px; }
@@ -199,10 +159,10 @@
 </head>
 <body>
 
-  <!-- 右上ヘッダーメニュー（テキスト） -->
-  <div class="headnav">
-    <a href="https://izuchan.com/iloilo-calendar-sestumei/">使い方</a>
-    <a href="https://izuchan.com/gekkanshi-ichiran-2025/">月干支一覧</a>
+  <!-- 右上ヘッダーメニュー（テキスト直打ちの区切り） -->
+  <div class="headnav" role="navigation" aria-label="Header menu">
+    <a href="https://izuchan.com/iloilo-calendar-sestumei/">使い方</a>&nbsp;|&nbsp;
+    <a href="https://izuchan.com/gekkanshi-ichiran-2025/">月干支一覧</a>&nbsp;|&nbsp;
     <a href="https://izuchan.com/">HOME</a>
   </div>
 
@@ -272,7 +232,7 @@
     mmNum.textContent = month;
 
     const first = new Date(year, month-1, 1);
-    theLast = new Date(year, month, 0).getDate();
+    const theLast = new Date(year, month, 0).getDate();
     const startWeek = first.getDay();
 
     calBody.innerHTML = '';
