@@ -61,7 +61,7 @@
 @media (max-width: 480px){
   .headnav{
     justify-content:flex-end;
-    padding-right:12px;
+    padding-right:8px;   /* ← ここを 6px / 8px / 10px と調整して右の余白を変える */
     gap:0;
     white-space:nowrap;
     align-items:center;
@@ -69,22 +69,16 @@
 
   .headnav a:link,
   .headnav a:visited{
-    color:#666;
-    text-decoration:none;
     font-size:13px;
     font-weight:700;
     line-height:1;
-    padding:0 6px;               /* ← 左右に同じだけの余白 */
+    padding:0 7px;       /* ← ここを 6px / 7px / 8px で文字と線の感覚を微調整 */
   }
-  .headnav a:hover{ color:#333; opacity:.9; }
 
-  /* 区切り線 */
-  .headnav .sep{
-    width:1px;
-    height:14px;
-    background:#bbb;
-    margin:0;                    /* ← 余白は消す */
-    align-self:center;
+  .headnav a + a{
+    border-left:1px solid #bbb;
+    padding-left:9px;    /* ← 左余白 */
+    margin-left:7px;     /* ← 線と文字の間の感覚 */
   }
 }
 
