@@ -32,7 +32,7 @@
   justify-content:flex-end;
   align-items:center;
   font-family:'Futura','Avenir Next','Montserrat',sans-serif;
-  font-weight:500;
+  font-weight:600;
   letter-spacing:.02em;
   font-size:14px;
   color:#666;
@@ -329,6 +329,13 @@
       monthInput.value = `${yyyy}-${String(mm).padStart(2,'0')}`;
     }
   })();
+  <script>
+  // ページ内のすべてのリンクを新しいタブで開く
+  document.querySelectorAll('a').forEach(link => {
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+  });
+</script>
 </script>
 </body>
 </html>
