@@ -58,34 +58,7 @@
 }
 .headnav a:hover{ opacity:.8; }
   /* === mobile only: 上ナビを右端に・コンパクト化 === */
-@media (max-width:480px){
-  .headnav{
-    justify-content:flex-end;   /* 右寄せ */
-    padding-right:6px;          /* 右端からの余白（調整可） */
-  }
 
-  .headnav a{
-    font-size:14px;             /* 少し小さめ */
-    padding:0 6px;              /* ← 線と文字の間隔をきゅっと */
-  }
-
-  .headnav a + a{
-    border-left:1px solid #bbb; /* 区切り線（スマホでも細めに維持） */
-  }
-}
-
-/* とても狭い端末（iPhone SEなど）向け */
-@media (max-width: 360px){
-  .headnav a:link,
-  .headnav a:visited{ 
-    font-size:12px; 
-    padding:2px 3px;              /* さらにタイトに */
-  }
-  .headnav .sep{ 
-    height:12px; 
-    margin:0 3px; 
-  }
-}
   /* ラップ＆カード */
   .wrap{
     min-height:100svh;
