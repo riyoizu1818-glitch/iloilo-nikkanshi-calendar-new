@@ -13,51 +13,81 @@
     --sub:#555;
     --bgglass:rgba(255,255,255,.55);
     --todaybg:rgba(244,246,144,.989);
+    --brand:#ff68b6;
     --nav-btn-bg:#ff68b6;          /* 下のピンクボタン */
     --nav-btn-fg:#fff;
+    --panel-radius:44px;
   }
 
   html,body{margin:0;padding:0;color:var(--ink);-webkit-text-size-adjust:100%;}
   body{
     font-family:'Hiragino Kaku Gothic ProN', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
-    background:url('iloiloback.jpg') no-repeat center/cover;
     text-align:center;
+    position:relative;
   }
 
-  /* ── 右上：テキストのヘッダーメニュー（シンプル版） ── */
-.headnav{
-  width:min(720px,92vw);
-  margin:8px auto 0;
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  font-family:'Futura','Avenir Next','Montserrat',sans-serif;
-  font-weight:500;
-  letter-spacing:.02em;
-  font-size:14px;
-  color:#666;
-}
-.headnav a{
-  color:inherit;
-  text-decoration:none;
-  padding:0 10px;              /* 文字と区切りの間隔 */
-  line-height:1;
+  /* ── 背景レイヤー①：ベージュ単色（一番下・常時・切り替えの"つなぎ"にも使う） ── */
+  .bg-solid{
+    position:fixed; inset:0; z-index:-3;
+    background:#faf6ef;
+  }
+  /* ── 背景レイヤー②：既定の水彩柄（イラスト未登録の日に表示） ── */
+  .bg-base{
+    position:fixed; inset:0; z-index:-2;
+    background:url('iloiloback.jpg') no-repeat center center;
+    background-size:cover;
+    opacity:1;
+    transition:opacity .4s ease-in-out;
+  }
+  .bg-base.is-hidden{ opacity:0; }
+  /* ── 背景レイヤー③：干支のカラースケープ（あるときだけフェードイン） ──
+     PC（広い画面）は原寸(cover)、スマホ幅では拡大して色の密度を出す。
+  */
+  .bg-scape{
+    position:fixed; inset:0; z-index:-1;
+    background-size:cover;
+    background-position:center;
+    opacity:0;
+    transition:opacity .4s ease-in-out;
+  }
+  .bg-scape.is-visible{ opacity:1; }
+  @media (max-width:600px){
+    .bg-scape{ background-size:180%; }
+  }
 
-}
+  /* ── 右上：テキストのヘッダーメニュー ── */
+  .headnav{
+    width:min(720px,92vw);
+    margin:8px auto 0;
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    font-family:'Futura','Avenir Next','Montserrat',sans-serif;
+    font-weight:500;
+    letter-spacing:.02em;
+    font-size:14px;
+    color:#666;
+  }
+  .headnav a{
+    color:inherit;
+    text-decoration:none;
+    padding:0 10px;
+    line-height:1;
   }
   .headnav a:hover{ color:#333; }
 
-  /* ---- ラップ＆カード ---- */
+  /* ---- ラップ＆カレンダーカード ---- */
   .wrap{
     min-height:100svh;
     display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
     padding:16px 16px calc(24px + env(safe-area-inset-bottom));
     gap:14px;
+    box-sizing:border-box;
   }
   .card{
     width:min(720px,92vw);
     background:var(--bgglass);
-    border-radius:12px;
+    border-radius:24px;
     box-shadow:0 2px 10px rgba(0,0,0,.08);
     padding:14px 14px 18px;
     backdrop-filter:blur(2px);
@@ -111,7 +141,7 @@
   .edge-left{ left:0; } .edge-right{ right:0; }
   .edge:active{ transform:translateY(-50%) scale(.85); }
 
-  /* カレンダー表：ぎゅっと版 */
+  /* カレンダー表 */
   .cal{
     width:100%; border-collapse:collapse; table-layout:fixed;
     border:1px solid var(--grid); border-radius:8px; overflow:hidden; background:#fff;
@@ -122,28 +152,106 @@
   .w-sun{ color:var(--sun); } .w-sat{ color:var(--sat); }
 
   .cal td{
-    height:68px;                   /* 78→68 */
+    height:68px;
     border-right:1px solid var(--grid); border-bottom:1px solid var(--grid);
     vertical-align:top; padding:5px 5px 3px; position:relative;
+    cursor:pointer;
+    transition:background-color .15s ease;
   }
   .cal tr td:last-child{ border-right:none; }
+  .cal td.has-day:hover{ background:rgba(255,104,182,.06); }
 
   .daynum{ font-weight:700; font-size:12px; line-height:1; position:absolute; left:6px; top:5px; }
   .emoji{ position:absolute; right:3px; top:2px; font-size:12.5px; }
   .kanshi{ margin-top:16px; font-size:17px; font-weight:700; }
   .reading{ font-size:9.5px; color:var(--sub); margin-top:2px; }
-  .empty{ background:#fafafa; }
+  .empty{ background:#fafafa; cursor:default; }
 
   .cal td.today{ background:transparent; transition:background-color .8s ease; }
   .cal td.today.highlight{ background:var(--todaybg); }
 
-  /* 下のピンクボタン */
-  .nav{ margin-top:12px; }
-  .nav .btn{
-    text-decoration:none; font-size:14px; font-weight:600;
-    background:var(--nav-btn-bg); color:var(--nav-btn-fg);
-    padding:8px 14px; border-radius:999px; display:inline-block;
+  .cal td.selected{ box-shadow:inset 0 0 0 2px var(--brand); }
+
+  /* ── フラッシュ演出：タップしたマスに一瞬イラストを表示 ── */
+  .cal td .flash{
+    position:absolute; inset:0;
+    background-size:cover; background-position:center;
+    opacity:0; transition:opacity .35s ease-in-out;
+    pointer-events:none;
   }
+  .cal td .flash.is-flashing{ opacity:1; }
+
+  /* ── 詳細パネル（タップした日の情報。角丸長方形1枚） ── */
+  .detail-panel{
+    width:min(360px,90vw);
+    border-radius:var(--panel-radius);
+    background:rgba(255,255,255,.88);
+    box-shadow:0 8px 24px rgba(0,0,0,.12);
+    overflow:hidden;
+    flex-shrink:0;
+    opacity:0;
+    transform:translateY(8px);
+    transition:opacity .35s ease-in-out, transform .35s ease-in-out;
+  }
+  .detail-panel.is-visible{ opacity:1; transform:translateY(0); }
+
+  .detail-top{ padding:18px 18px 14px; }
+  .detail-hint{ font-size:11px; color:#999; margin-bottom:2px; }
+  .detail-no{
+    font-family:'Futura','Avenir Next','Montserrat',sans-serif;
+    font-weight:700; font-size:11px; letter-spacing:.08em; color:var(--brand);
+  }
+  .detail-kanshi{ font-size:26px; font-weight:700; margin-top:3px; line-height:1.1; }
+  .detail-reading{ font-size:12px; color:#777; margin-top:1px; }
+  .detail-persona{ font-size:14px; font-weight:600; color:#222; margin-top:7px; }
+
+  .scape-label{
+    margin:14px 0 8px;
+    font-family:'Futura','Avenir Next','Montserrat',sans-serif;
+    font-weight:600; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:#999;
+  }
+
+  .detail-art-wrap{
+    padding:4px 46px 0;
+    display:flex; flex-direction:column; align-items:center;
+    opacity:1; transition:opacity .3s ease-in-out;
+  }
+  .detail-art{
+    width:100%; max-width:150px;
+    border-radius:16px; overflow:hidden;
+    background-color:rgba(255,255,255,.35);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 14px rgba(0,0,0,.08);
+  }
+  .detail-art img{ width:100%; height:auto; display:block; }
+  .detail-art.is-pending{ aspect-ratio: 4 / 5; }
+  .pending-msg{ font-size:12px; color:#999; font-weight:500; letter-spacing:.02em; }
+  .pending-msg .pin{ font-size:16px; display:block; margin-bottom:3px; }
+
+  .detail-body{
+    padding:14px 16px 18px;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .detail-link{
+    text-decoration:none; font-size:12px; font-weight:700; color:#fff;
+    background:var(--brand); padding:8px 16px; border-radius:999px;
+    display:inline-block; box-shadow:0 4px 10px rgba(255,104,182,.35);
+    white-space:nowrap;
+  }
+
+  /* 下のピンクボタン */
+  .nav{
+    margin-top:2px;
+    width:min(360px,90vw);
+    text-align:right;
+  }
+  .nav .btn{
+    text-decoration:none; font-size:11px; font-weight:600;
+    color:#888; background:rgba(255,255,255,.5); border:1px solid rgba(0,0,0,.12);
+    padding:5px 13px; border-radius:999px; display:inline-block;
+  }
+  .nav .btn:hover{ color:#555; background:rgba(255,255,255,.7); }
 
   /* ── スマホだけ微調整（PCはそのまま） ── */
   @media (max-width:480px){
@@ -161,7 +269,11 @@
 </head>
 <body>
 
-  <!-- 右上ヘッダーメニュー（テキスト直打ちの区切り） -->
+  <div class="bg-solid"></div>
+  <div class="bg-base" id="bgBase"></div>
+  <div class="bg-scape" id="bgScape"></div>
+
+  <!-- 右上ヘッダーメニュー -->
   <div class="headnav" role="navigation" aria-label="Header menu">
     <a href="https://izuchan.com/nikkanshi-calendar-guide/">使い方</a>&nbsp;|&nbsp;
     <a href="https://izuchan.com/setsuiribi-ichiran2026/">月干支一覧</a>&nbsp;|&nbsp;
@@ -193,10 +305,30 @@
         </thead>
         <tbody id="cal-body"></tbody>
       </table>
+    </div>
 
-      <div class="nav">
-         <a class="btn" href="https://izuchan.com/iloilo-nikkanshi-checker/">🔍 日干支チェッカーへ ▶︎</a> 
+    <!-- タップした日の詳細パネル -->
+    <div class="detail-panel" id="detailPanel">
+      <div class="detail-top">
+        <div class="detail-hint" id="detailHint">今日</div>
+        <div class="detail-no" id="detailNo">&nbsp;</div>
+        <div class="detail-kanshi" id="detailKanshi">&nbsp;</div>
+        <div class="detail-reading" id="detailReading">&nbsp;</div>
+        <div class="detail-persona" id="detailPersona">&nbsp;</div>
       </div>
+
+      <div class="scape-label">Color Scape</div>
+
+      <div class="detail-art-wrap" id="detailArtWrap">
+        <div class="detail-art" id="detailArt"></div>
+        <div class="detail-body">
+          <a class="detail-link" id="detailLink" href="#" rel="noopener noreferrer">この景色をひらく</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <a class="btn" href="https://izuchan.com/iloilo-nikkanshi-checker/">🔍 日干支チェッカーへ</a>
     </div>
   </div>
 
@@ -208,6 +340,45 @@
   const branchesReading = ["ね","うし","とら","う","たつ","み","うま","ひつじ","さる","とり","いぬ","い"];
 
   const stemEmoji = {"甲":"🌳","乙":"🪻","丙":"☀️","丁":"🔥","戊":"⛰️","己":"🪏","庚":"🪨","辛":"💍","壬":"🌊","癸":"☔️"};
+
+  /* ── 干支番号（甲子=01〜癸亥=60）── */
+  function kanshiNumber(stem, branch){
+    const stemIdx = stems.indexOf(stem);
+    const branchIdx = branches.indexOf(branch);
+    for(let n=0; n<60; n++){
+      if(n % 10 === stemIdx && n % 12 === branchIdx){ return n + 1; }
+    }
+    return null;
+  }
+
+  const ILLUSTRATIONS_DIR = "illustrations"; // チェッカーと同じフォルダ
+
+  /* ── ① イラストがアップロード済みの番号一覧（チェッカーと同じリストを使う） ── */
+  const etoIllustrated = new Set([
+    15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,42,43
+  ]);
+
+  /* ── ② 記事が完成した干支の番号だけ、ここに追加してください（チェッカーと同じ） ──
+     ここに登録された番号だけ「この景色をひらく」ボタンが表示されます。
+  */
+  const etoArticleUrls = {
+    // 24: "https://izuchan.com/hinoto-i/",
+  };
+
+  /* ── 拡張子の表記ゆれ対応（.jpg / .JPG / .jpeg / .JPEG を順に試す） ── */
+  const EXT_CANDIDATES = ['jpg','JPG','jpeg','JPEG'];
+  function resolveImageUrl(baseNoExt, onFound, onNotFound){
+    let i = 0;
+    function tryNext(){
+      if(i >= EXT_CANDIDATES.length){ onNotFound && onNotFound(); return; }
+      const testUrl = `${baseNoExt}.${EXT_CANDIDATES[i]}`;
+      const testImg = new Image();
+      testImg.onload = () => onFound(testUrl);
+      testImg.onerror = () => { i++; tryNext(); };
+      testImg.src = testUrl;
+    }
+    tryNext();
+  }
 
   /* 干支計算（1984/3/31 = 甲子） */
   const baseDate = new Date(1984, 2, 31);
@@ -222,13 +393,103 @@
   const calBody = document.getElementById('cal-body');
   const monthInput = document.getElementById('monthInput');
 
+  const bgBaseEl = document.getElementById('bgBase');
+  const bgScapeEl = document.getElementById('bgScape');
+  const detailPanelEl = document.getElementById('detailPanel');
+  const detailHintEl = document.getElementById('detailHint');
+  const detailNoEl = document.getElementById('detailNo');
+  const detailKanshiEl = document.getElementById('detailKanshi');
+  const detailReadingEl = document.getElementById('detailReading');
+  const detailPersonaEl = document.getElementById('detailPersona');
+  const detailArtWrapEl = document.getElementById('detailArtWrap');
+  const detailArtEl = document.getElementById('detailArt');
+  const detailLinkEl = document.getElementById('detailLink');
+
+  let selectedCell = null;
+
   function supportsMonth(){
     const i = document.createElement('input');
     i.setAttribute('type','month');
     return i.type === 'month';
   }
 
-  function renderCalendar(year, month){
+  /* ── 日付タップ時：マスに一瞬フラッシュ＋下の詳細パネル＋背景を更新 ── */
+  function selectDate(td, date, isToday){
+    if(selectedCell){ selectedCell.classList.remove('selected'); }
+    selectedCell = td;
+    td.classList.add('selected');
+
+    const idx = kanshiIndexFromDate(date);
+    const stem = stems[idx % 10], branch = branches[idx % 12];
+    const stemR = stemsReading[idx % 10], branchR = branchesReading[idx % 12];
+    const num = kanshiNumber(stem, branch);
+    const numStr = String(num).padStart(2,'0');
+    const hasIllustration = etoIllustrated.has(num);
+    const url = etoArticleUrls[num];
+
+    // マスに一瞬フラッシュ表示
+    const flash = td.querySelector('.flash');
+    if(flash && hasIllustration){
+      resolveImageUrl(`${ILLUSTRATIONS_DIR}/${numStr}`, (foundUrl)=>{
+        flash.style.backgroundImage = `url('${foundUrl}')`;
+        flash.classList.add('is-flashing');
+        setTimeout(()=> flash.classList.remove('is-flashing'), 500);
+      });
+    }
+
+    // 詳細パネルのテキスト更新
+    detailHintEl.textContent = isToday
+      ? '今日'
+      : `${date.getMonth()+1}月${date.getDate()}日`;
+    detailNoEl.textContent = `No.${num}`;
+    detailKanshiEl.textContent = stem + branch;
+    detailReadingEl.textContent = stemR + branchR;
+    detailPersonaEl.textContent = `${stemEmoji[stem]}${stem}${branch}の景色が巡る1日`;
+
+    // 背景・詳細パネルのイラストをクロスフェード
+    detailArtWrapEl.style.opacity = 0;
+    bgScapeEl.classList.remove('is-visible');
+    bgBaseEl.classList.add('is-hidden');
+
+    setTimeout(()=>{
+      if(hasIllustration){
+        detailArtEl.classList.remove('is-pending');
+        resolveImageUrl(
+          `${ILLUSTRATIONS_DIR}/${numStr}`,
+          (foundUrl)=>{
+            detailArtEl.innerHTML = `<img src="${foundUrl}" alt="No.${num} カラースケープ" />`;
+            bgScapeEl.style.backgroundImage = `url('${foundUrl}')`;
+            requestAnimationFrame(()=> bgScapeEl.classList.add('is-visible'));
+          },
+          ()=>{
+            detailArtEl.classList.add('is-pending');
+            detailArtEl.innerHTML = '<div class="pending-msg"><span class="pin">🖌️</span>この景色は制作中です</div>';
+            requestAnimationFrame(()=> bgBaseEl.classList.remove('is-hidden'));
+          }
+        );
+      } else {
+        detailArtEl.classList.add('is-pending');
+        detailArtEl.innerHTML = '<div class="pending-msg"><span class="pin">🖌️</span>この景色は制作中です</div>';
+        requestAnimationFrame(()=> bgBaseEl.classList.remove('is-hidden'));
+      }
+
+      if(url){
+        detailLinkEl.href = url;
+        detailLinkEl.textContent = 'この景色をひらく';
+        detailLinkEl.setAttribute('target','_blank');
+        detailLinkEl.setAttribute('rel','noopener noreferrer');
+        detailLinkEl.style.display = '';
+      } else {
+        detailLinkEl.style.display = 'none';
+      }
+
+      detailArtWrapEl.style.opacity = 1;
+    }, 200);
+
+    detailPanelEl.classList.add('is-visible');
+  }
+
+  function renderCalendar(year, month, opts){
     currentYear = year; currentMonth = month;
     yy.textContent = year;
     mmNum.textContent = month;
@@ -238,7 +499,11 @@
     const startWeek = first.getDay();
 
     calBody.innerHTML = '';
+    selectedCell = null;
     let day = 1;
+    let todayCellRef = null;
+    let todayDateRef = null;
+
     for(let r=0; r<6; r++){
       const tr = document.createElement('tr');
       for(let c=0; c<7; c++){
@@ -247,6 +512,7 @@
         if(r===0 && c<startWeek){
           td.className = 'empty';
         } else if(day <= theLast){
+          td.classList.add('has-day');
           const date = new Date(year, month-1, day);
           const idx  = kanshiIndexFromDate(date);
 
@@ -260,18 +526,25 @@
           if(c===6){ td.style.color = getComputedStyle(document.documentElement).getPropertyValue('--sat'); }
 
           const today = new Date();
-          if(date.getFullYear()===today.getFullYear() &&
+          const isToday = date.getFullYear()===today.getFullYear() &&
              date.getMonth()===today.getMonth() &&
-             date.getDate()===today.getDate()){
+             date.getDate()===today.getDate();
+          if(isToday){
             td.classList.add('today');
+            todayCellRef = td;
+            todayDateRef = date;
           }
 
           td.innerHTML = `
+            <div class="flash"></div>
             <div class="daynum">${day}</div>
             <div class="emoji">${emoji}</div>
             <div class="kanshi">${k}</div>
             <div class="reading">${rubi}</div>
           `;
+
+          td.addEventListener('click', ()=> selectDate(td, date, isToday));
+
           day++;
         } else {
           td.className = 'empty';
@@ -283,9 +556,15 @@
     }
 
     setTimeout(()=>{
-      const todayCell = document.querySelector(".today");
-      if(todayCell) todayCell.classList.add("highlight");
+      if(todayCellRef) todayCellRef.classList.add("highlight");
     },100);
+
+    // 初期表示：今日の日付があれば自動選択してパネルを最初から出す
+    if(!opts || opts.autoSelectToday !== false){
+      if(todayCellRef && todayDateRef){
+        selectDate(todayCellRef, todayDateRef, true);
+      }
+    }
   }
 
   if (supportsMonth()){
