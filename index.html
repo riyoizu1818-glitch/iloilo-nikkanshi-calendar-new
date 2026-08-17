@@ -324,16 +324,16 @@
   <!-- 右上ヘッダーメニュー（アイコンボタン） -->
   <div class="headnav" role="navigation" aria-label="Header menu">
     <a class="icon-btn" href="https://izuchan.com/nikkanshi-calendar-guide/" title="使い方">
-      <img src="icons/usage-icon.jpg" alt="使い方" onerror="this.closest('a').style.display='none'">
+      <img class="icon-img" data-base="icons/usage-icon" alt="使い方">
     </a>
     <button class="icon-btn" type="button" title="2026年 月干支一覧" onclick="openModal('2026')">
-      <img src="icons/nenkan-2026-icon.jpg" alt="2026年 月干支一覧" onerror="this.closest('button').style.display='none'">
+      <img class="icon-img" data-base="icons/nenkan-2026-icon" alt="2026年 月干支一覧">
     </button>
     <button class="icon-btn" type="button" title="2027年 月干支一覧" onclick="openModal('2027')">
-      <img src="icons/nenkan-2027-icon.jpg" alt="2027年 月干支一覧" onerror="this.closest('button').style.display='none'">
+      <img class="icon-img" data-base="icons/nenkan-2027-icon" alt="2027年 月干支一覧">
     </button>
     <a class="icon-btn" href="https://izuchan.com/" title="HOME">
-      <img src="icons/home-icon.jpg" alt="HOME" onerror="this.closest('a').style.display='none'">
+      <img class="icon-img" data-base="icons/home-icon" alt="HOME">
     </a>
   </div>
 
@@ -403,10 +403,42 @@
   </div>
 
 <script>
+  /* ── 拡張子の表記ゆれ対応（.jpg / .JPG / .jpeg / .JPEG / .png を順に試す） ──
+     アイコン・表画像・イラスト全てで共通して使う。
+  */
+  const EXT_CANDIDATES = ['jpg','JPG','jpeg','JPEG','png','PNG'];
+  function resolveImageUrl(baseNoExt, onFound, onNotFound){
+    let i = 0;
+    function tryNext(){
+      if(i >= EXT_CANDIDATES.length){ onNotFound && onNotFound(); return; }
+      const testUrl = `${baseNoExt}.${EXT_CANDIDATES[i]}`;
+      const testImg = new Image();
+      testImg.onload = () => onFound(testUrl);
+      testImg.onerror = () => { i++; tryNext(); };
+      testImg.src = testUrl;
+    }
+    tryNext();
+  }
+
+  /* ── ヘッダーのアイコン画像を拡張子自動判定で読み込む ──
+     見つからない場合はボタンごと非表示にする。
+  */
+  document.querySelectorAll('.icon-img[data-base]').forEach(img=>{
+    const base = img.getAttribute('data-base');
+    resolveImageUrl(
+      base,
+      (foundUrl)=>{ img.src = foundUrl; },
+      ()=>{
+        const btn = img.closest('a, button');
+        if(btn) btn.style.display = 'none';
+      }
+    );
+  });
+
   /* ── 月干支一覧モーダル ── */
   const NENKAN = {
-    '2026': { img: 'icons/nenkan-2026-table.jpg', url: 'https://izuchan.com/setsuiribi-ichiran2026/' },
-    '2027': { img: 'icons/nenkan-2027-table.jpg', url: 'https://izuchan.com/setsuiribi-ichiran2027/' }
+    '2026': { imgBase: 'icons/nenkan-2026-table', url: 'https://izuchan.com/setsuiribi-ichiran2026/' },
+    '2027': { imgBase: 'icons/nenkan-2027-table', url: 'https://izuchan.com/setsuiribi-ichiran2027/' }
   };
   const modalOverlay = document.getElementById('modalOverlay');
   const modalImg = document.getElementById('modalImg');
@@ -415,8 +447,12 @@
   function openModal(year){
     const data = NENKAN[year];
     if(!data) return;
-    modalImg.src = data.img;
     modalImg.alt = `${year}年 月干支一覧`;
+    resolveImageUrl(
+      data.imgBase,
+      (foundUrl)=>{ modalImg.src = foundUrl; },
+      ()=>{ modalImg.src = ''; }
+    );
     modalLink.href = data.url;
     modalLink.textContent = `${year}年の記事を詳しく見る`;
     modalLink.setAttribute('target','_blank');
@@ -458,21 +494,6 @@
   const etoArticleUrls = {
     // 24: "https://izuchan.com/hinoto-i/",
   };
-
-  /* ── 拡張子の表記ゆれ対応（.jpg / .JPG / .jpeg / .JPEG を順に試す） ── */
-  const EXT_CANDIDATES = ['jpg','JPG','jpeg','JPEG'];
-  function resolveImageUrl(baseNoExt, onFound, onNotFound){
-    let i = 0;
-    function tryNext(){
-      if(i >= EXT_CANDIDATES.length){ onNotFound && onNotFound(); return; }
-      const testUrl = `${baseNoExt}.${EXT_CANDIDATES[i]}`;
-      const testImg = new Image();
-      testImg.onload = () => onFound(testUrl);
-      testImg.onerror = () => { i++; tryNext(); };
-      testImg.src = testUrl;
-    }
-    tryNext();
-  }
 
   /* 干支計算（1984/3/31 = 甲子） */
   const baseDate = new Date(1984, 2, 31);
