@@ -17,6 +17,8 @@
     --nav-btn-bg:#ff68b6;          /* 下のピンクボタン */
     --nav-btn-fg:#fff;
     --panel-radius:44px;
+    --icon-size:52px;              /* ヘッダーアイコンの大きさ（PC）。ここを変えるだけで4つ全部が変わります */
+    --icon-size-mobile:52px;       /* ヘッダーアイコンの大きさ（スマホ幅） */
   }
 
   html,body{margin:0;padding:0;color:var(--ink);-webkit-text-size-adjust:100%;}
@@ -69,7 +71,8 @@
     display:block; line-height:0;
   }
   .icon-btn{
-    width:38px; height:38px;
+    width:var(--icon-size);
+    height:var(--icon-size);
     border-radius:11px;
     overflow:hidden;
     box-shadow:0 2px 6px rgba(0,0,0,.12);
@@ -304,7 +307,7 @@
 
   /* ── スマホだけ微調整（PCはそのまま） ── */
   @media (max-width:480px){
-    .icon-btn{ width:34px; height:34px; border-radius:10px; }
+    .icon-btn{ width:var(--icon-size-mobile); height:var(--icon-size-mobile); border-radius:10px; }
 
     .cal td{ height:62px; padding:4px 4px 3px; }
     .kanshi{ font-size:16px; margin-top:14px; }
