@@ -55,26 +55,75 @@
     .bg-scape{ background-size:180%; }
   }
 
-  /* ── 右上：テキストのヘッダーメニュー ── */
+  /* ── 右上：アイコンボタン式ヘッダーメニュー ── */
   .headnav{
     width:min(720px,92vw);
     margin:8px auto 0;
     display:flex;
     justify-content:flex-end;
     align-items:center;
-    font-family:'Futura','Avenir Next','Montserrat',sans-serif;
-    font-weight:500;
-    letter-spacing:.02em;
-    font-size:14px;
-    color:#666;
+    gap:8px;
   }
-  .headnav a{
-    color:inherit;
-    text-decoration:none;
-    padding:0 10px;
-    line-height:1;
+  .headnav button, .headnav a{
+    border:none; background:transparent; padding:0; margin:0; cursor:pointer;
+    display:block; line-height:0;
   }
-  .headnav a:hover{ color:#333; }
+  .icon-btn{
+    width:38px; height:38px;
+    border-radius:11px;
+    overflow:hidden;
+    box-shadow:0 2px 6px rgba(0,0,0,.12);
+    background:#fff;
+    display:block;
+  }
+  .icon-btn img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .icon-btn:active{ transform:scale(.92); }
+
+  /* ── モーダル（月干支一覧の表を表示） ── */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:50;
+    background:rgba(0,0,0,.45);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease-in-out;
+    box-sizing:border-box;
+  }
+  .modal-overlay.is-open{ opacity:1; pointer-events:auto; }
+  .modal-box{
+    width:min(420px,100%);
+    max-height:86vh;
+    background:#fff;
+    border-radius:28px;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    transform:translateY(10px);
+    transition:transform .25s ease-in-out;
+    box-shadow:0 12px 32px rgba(0,0,0,.25);
+  }
+  .modal-overlay.is-open .modal-box{ transform:translateY(0); }
+  .modal-head{
+    display:flex; justify-content:flex-end;
+    padding:10px 10px 0;
+  }
+  .modal-close{
+    border:none; background:rgba(0,0,0,.06); color:#555;
+    width:30px; height:30px; border-radius:50%;
+    font-size:16px; line-height:1; cursor:pointer;
+  }
+  .modal-scroll{
+    overflow-y:auto;
+    padding:4px 20px 20px;
+  }
+  .modal-scroll img{
+    width:100%; height:auto; border-radius:14px; display:block;
+  }
+  .modal-link{
+    margin-top:14px;
+    text-decoration:none; font-size:13px; font-weight:700; color:#fff;
+    background:var(--brand); padding:9px 20px; border-radius:999px;
+    display:inline-block; box-shadow:0 4px 10px rgba(255,104,182,.35);
+  }
 
   /* ---- ラップ＆カレンダーカード ---- */
   .wrap{
@@ -255,8 +304,7 @@
 
   /* ── スマホだけ微調整（PCはそのまま） ── */
   @media (max-width:480px){
-    .headnav{ padding-right:12px; }
-    .headnav a{ font-size:13px; padding:3px 7px; }
+    .icon-btn{ width:34px; height:34px; border-radius:10px; }
 
     .cal td{ height:62px; padding:4px 4px 3px; }
     .kanshi{ font-size:16px; margin-top:14px; }
@@ -273,11 +321,33 @@
   <div class="bg-base" id="bgBase"></div>
   <div class="bg-scape" id="bgScape"></div>
 
-  <!-- 右上ヘッダーメニュー -->
+  <!-- 右上ヘッダーメニュー（アイコンボタン） -->
   <div class="headnav" role="navigation" aria-label="Header menu">
-    <a href="https://izuchan.com/nikkanshi-calendar-guide/">使い方</a>&nbsp;|&nbsp;
-    <a href="https://izuchan.com/setsuiribi-ichiran2026/">月干支一覧</a>&nbsp;|&nbsp;
-    <a href="https://izuchan.com/">HOME</a>
+    <a class="icon-btn" href="https://izuchan.com/nikkanshi-calendar-guide/" title="使い方">
+      <img src="icons/usage-icon.jpg" alt="使い方" onerror="this.closest('a').style.display='none'">
+    </a>
+    <button class="icon-btn" type="button" title="2026年 月干支一覧" onclick="openModal('2026')">
+      <img src="icons/nenkan-2026-icon.jpg" alt="2026年 月干支一覧" onerror="this.closest('button').style.display='none'">
+    </button>
+    <button class="icon-btn" type="button" title="2027年 月干支一覧" onclick="openModal('2027')">
+      <img src="icons/nenkan-2027-icon.jpg" alt="2027年 月干支一覧" onerror="this.closest('button').style.display='none'">
+    </button>
+    <a class="icon-btn" href="https://izuchan.com/" title="HOME">
+      <img src="icons/home-icon.jpg" alt="HOME" onerror="this.closest('a').style.display='none'">
+    </a>
+  </div>
+
+  <!-- 月干支一覧モーダル -->
+  <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
+    <div class="modal-box">
+      <div class="modal-head">
+        <button class="modal-close" type="button" onclick="closeModal()" aria-label="閉じる">✕</button>
+      </div>
+      <div class="modal-scroll">
+        <img id="modalImg" src="" alt="月干支一覧">
+        <a class="modal-link" id="modalLink" href="#" rel="noopener noreferrer">詳しく見る</a>
+      </div>
+    </div>
   </div>
 
   <div class="wrap">
@@ -333,6 +403,30 @@
   </div>
 
 <script>
+  /* ── 月干支一覧モーダル ── */
+  const NENKAN = {
+    '2026': { img: 'icons/nenkan-2026-table.jpg', url: 'https://izuchan.com/setsuiribi-ichiran2026/' },
+    '2027': { img: 'icons/nenkan-2027-table.jpg', url: 'https://izuchan.com/setsuiribi-ichiran2027/' }
+  };
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalImg = document.getElementById('modalImg');
+  const modalLink = document.getElementById('modalLink');
+
+  function openModal(year){
+    const data = NENKAN[year];
+    if(!data) return;
+    modalImg.src = data.img;
+    modalImg.alt = `${year}年 月干支一覧`;
+    modalLink.href = data.url;
+    modalLink.textContent = `${year}年の記事を詳しく見る`;
+    modalLink.setAttribute('target','_blank');
+    modalLink.setAttribute('rel','noopener noreferrer');
+    modalOverlay.classList.add('is-open');
+  }
+  function closeModal(){
+    modalOverlay.classList.remove('is-open');
+  }
+
   /* 干支データ */
   const stems = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
   const stemsReading = ["きのえ","きのと","ひのえ","ひのと","つちのえ","つちのと","かのえ","かのと","みずのえ","みずのと"];
@@ -610,8 +704,10 @@
   })();
 </script>
   <script>
-  // ページ内のすべてのリンクを新しいタブで開く
+  // ページ内のリンク（HOME・使い方・詳しく見るなど）を新しいタブで開く
+  // ※アイコンボタン（button要素、モーダル制御）には影響しません
   document.querySelectorAll('a').forEach(link => {
+    if(link.id === 'modalLink') return; // openModal内で個別に制御
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
   });
