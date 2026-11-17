@@ -57,6 +57,70 @@
     .bg-scape{ background-size:180%; }
   }
 
+  /* ── お知らせコーナー（常設の告知バー。無いときは高さゼロで完全非表示） ── */
+  .announce-bar{
+    width:min(720px,92vw);
+    margin:10px auto 0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:rgba(255,255,255,.8);
+    border-radius:16px;
+    padding:0 10px;
+    box-sizing:border-box;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    opacity:0;
+    max-height:0;
+    overflow:hidden;
+    pointer-events:none;
+    transition:opacity .3s ease-in-out, max-height .3s ease-in-out, margin .3s ease-in-out, padding .3s ease-in-out;
+  }
+  .announce-bar.is-visible{
+    opacity:1;
+    max-height:120px;
+    padding:8px 10px;
+    pointer-events:auto;
+  }
+  .announce-thumb{
+    width:42px; height:42px; border-radius:10px; overflow:hidden;
+    flex-shrink:0; background:#f0f0f0; display:block;
+  }
+  .announce-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .announce-body{ flex:1 1 auto; min-width:0; text-align:left; }
+  .announce-text{ font-size:12px; font-weight:700; color:#333; line-height:1.3; }
+  .announce-period{ font-size:10px; color:#999; margin-top:1px; }
+  .announce-links{ display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-top:5px; }
+  /* SUZURIなど最優先の行き先：強調ピルボタン */
+  .announce-link{
+    font-size:10.5px; font-weight:700; color:#fff; background:var(--brand);
+    padding:4px 12px; border-radius:999px; text-decoration:none; white-space:nowrap;
+    box-shadow:0 2px 6px rgba(255,104,182,.35);
+  }
+  /* 「こんな商品です」など軽い案内：ボタンではなくテキストリンク */
+  .announce-link-text{
+    font-size:10.5px; font-weight:700; color:var(--brand);
+    text-decoration:none; white-space:nowrap; background:none; padding:0;
+  }
+  .announce-close{
+    border:none; background:rgba(0,0,0,.07); color:#777;
+    width:22px; height:22px; border-radius:50%;
+    font-size:11px; line-height:1; cursor:pointer; flex-shrink:0;
+  }
+
+  /* ── ページ最下部：商品説明の画像（お知らせの最後のダメ押し枠） ── */
+  .promo-bottom{
+    width:min(360px,90vw);
+    margin:6px auto 0;
+    display:none;
+  }
+  .promo-bottom.is-visible{ display:block; }
+  .promo-bottom a{ display:block; }
+  .promo-bottom img{
+    width:100%; height:auto; display:block;
+    border-radius:20px;
+    box-shadow:0 6px 18px rgba(0,0,0,.12);
+  }
+
   /* ── 右上：アイコンボタン式ヘッダーメニュー ── */
   .headnav{
     width:min(720px,92vw);
@@ -315,6 +379,8 @@
     .brand{ font-size:19px; }
     .m-num{ font-size:46px; }
     .monthbar{ min-height:38px; }
+
+    .announce-text{ font-size:11.5px; }
   }
 </style>
 </head>
@@ -323,6 +389,20 @@
   <div class="bg-solid"></div>
   <div class="bg-base" id="bgBase"></div>
   <div class="bg-scape" id="bgScape"></div>
+
+  <!-- ── お知らせコーナー ──
+       内容は下のJS内「ANNOUNCEMENT」という設定だけで管理できます。
+       ANNOUNCEMENT を null にすると、このバーは完全に非表示（高さゼロ）になります。
+  -->
+  <div class="announce-bar" id="announceBar">
+    <a class="announce-thumb" id="announceThumb" target="_blank" rel="noopener noreferrer"></a>
+    <div class="announce-body">
+      <div class="announce-text" id="announceText"></div>
+      <div class="announce-period" id="announcePeriod"></div>
+      <div class="announce-links" id="announceLinks"></div>
+    </div>
+    <button class="announce-close" id="announceClose" type="button" aria-label="閉じる">✕</button>
+  </div>
 
   <!-- 右上ヘッダーメニュー（アイコンボタン） -->
   <div class="headnav" role="navigation" aria-label="Header menu">
@@ -405,9 +485,16 @@
     </div>
   </div>
 
+  <!-- ── ページ最下部：商品説明画像（PROMO_BOTTOM が無ければ自動で非表示） ── -->
+  <div class="promo-bottom" id="promoBottom">
+    <a id="promoBottomLink" target="_blank" rel="noopener noreferrer">
+      <img id="promoBottomImg" src="" alt="">
+    </a>
+  </div>
+
 <script>
   /* ── 拡張子の表記ゆれ対応（.jpg / .JPG / .jpeg / .JPEG / .png を順に試す） ──
-     アイコン・表画像・イラスト全てで共通して使う。
+     アイコン・表画像・イラスト・お知らせ画像で共通して使う。
   */
   const EXT_CANDIDATES = ['jpg','JPG','jpeg','JPEG','png','PNG'];
   function resolveImageUrl(baseNoExt, onFound, onNotFound){
@@ -437,6 +524,145 @@
       }
     );
   });
+
+  /* ══════════════════════════════════════════════════════════
+     ── お知らせコーナー（常設の告知バー） ──
+     ここだけ書き換えれば、今後いろんな告知を出し入れできます。
+
+     ANNOUNCEMENT を null にすると、バーは完全に非表示（高さゼロ）になり、
+     ツールのレイアウトに一切影響しません。
+
+     image         … バー左のサムネイル画像。拡張子なしのパスでOK（アイコンと
+                     同じ仕組みで jpg/JPG/jpeg/JPEG/png/PNG を自動で探します）。
+                     画像自体もタップできるリンクになります。
+     imageLink     … 画像をタップした時の行き先。省略すると primaryLink の
+                     url が使われます。
+
+     primaryLink   … 一番強調したいリンク（ピンクの太いボタン）。例：SUZURI。
+     secondaryLink … 軽く案内するだけのリンク（ボタンではなくテキストリンク）。
+                     url を書かなければ自動的に表示されません。
+
+     id は告知ごとに違う文字列にしてください（今は毎回表示の設定なので
+     実質使っていませんが、将来また使うことがあるかもしれないので残して
+     います）。
+     ══════════════════════════════════════════════════════════ */
+  const ANNOUNCEMENT = {
+    id: 'suzuri-calendar-2026',
+    image: 'icons/announce-suzuri-calendar',
+    imageLink: '', // 空なら primaryLink.url を使う
+    text: 'こんなカレンダー販売します！',
+    period: '発売期間　⚪︎月⚪︎日 〜 ⚪︎月⚪︎日',
+    primaryLink: { label: 'SUZURIで見る', url: 'https://suzuri.jp/' },
+    secondaryLink: { label: '▶︎ こんな商品です', url: '' } // urlが空なら非表示
+  };
+  // お知らせが無い期間はこちらに切り替えてください：
+  // const ANNOUNCEMENT = null;
+
+  (function initAnnouncement(){
+    const bar = document.getElementById('announceBar');
+    if(!ANNOUNCEMENT){ return; } // 設定が無ければ何もしない＝高さゼロのまま
+
+    // ※今は「毎回表示」設定（✕で閉じても次に訪れたときはまた表示されます）
+
+    const textEl = document.getElementById('announceText');
+    const periodEl = document.getElementById('announcePeriod');
+    const linksEl = document.getElementById('announceLinks');
+    const thumbEl = document.getElementById('announceThumb');
+    const closeBtn = document.getElementById('announceClose');
+
+    textEl.textContent = ANNOUNCEMENT.text || '';
+
+    if(ANNOUNCEMENT.period){
+      periodEl.textContent = ANNOUNCEMENT.period;
+      periodEl.style.display = '';
+    } else {
+      periodEl.style.display = 'none';
+    }
+
+    linksEl.innerHTML = '';
+    const primary = ANNOUNCEMENT.primaryLink;
+    if(primary && primary.url){
+      const a = document.createElement('a');
+      a.className = 'announce-link';
+      a.href = primary.url;
+      a.textContent = primary.label || 'もっと見る';
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      linksEl.appendChild(a);
+    }
+    const secondary = ANNOUNCEMENT.secondaryLink;
+    if(secondary && secondary.url){
+      const a = document.createElement('a');
+      a.className = 'announce-link-text';
+      a.href = secondary.url;
+      a.textContent = secondary.label || '▶︎ こんな商品です';
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      linksEl.appendChild(a);
+    }
+
+    if(ANNOUNCEMENT.image){
+      resolveImageUrl(
+        ANNOUNCEMENT.image,
+        (foundUrl)=>{
+          thumbEl.innerHTML = `<img src="${foundUrl}" alt="">`;
+          thumbEl.style.display = '';
+          const linkUrl = ANNOUNCEMENT.imageLink || (primary && primary.url) || '';
+          if(linkUrl){
+            thumbEl.href = linkUrl;
+          } else {
+            thumbEl.removeAttribute('href');
+            thumbEl.style.cursor = 'default';
+          }
+        },
+        ()=>{ thumbEl.style.display = 'none'; }
+      );
+    } else {
+      thumbEl.style.display = 'none';
+    }
+
+    closeBtn.addEventListener('click', ()=>{
+      bar.classList.remove('is-visible');
+      // 今回は「毎回表示」設定なので、閉じた記録は保存しません。
+      // （次にページを開いたときはまた表示されます）
+    });
+
+    bar.classList.add('is-visible');
+  })();
+
+  /* ══════════════════════════════════════════════════════════
+     ── ページ最下部の商品説明画像（しつこいくらいのダメ押し枠） ──
+     image … 商品の詳細を書き込んだ説明画像。拡張子なしのパスでOK。
+     link  … タップ時の行き先（空なら画像だけ、リンクなし）。
+     掲載しない時は PROMO_BOTTOM を null にしてください。
+     ══════════════════════════════════════════════════════════ */
+  const PROMO_BOTTOM = {
+    image: 'icons/announce-suzuri-detail',
+    link: 'https://suzuri.jp/'
+  };
+  // const PROMO_BOTTOM = null;
+
+  (function initPromoBottom(){
+    if(!PROMO_BOTTOM || !PROMO_BOTTOM.image) return;
+    const wrap = document.getElementById('promoBottom');
+    const img = document.getElementById('promoBottomImg');
+    const link = document.getElementById('promoBottomLink');
+
+    resolveImageUrl(
+      PROMO_BOTTOM.image,
+      (foundUrl)=>{
+        img.src = foundUrl;
+        if(PROMO_BOTTOM.link){
+          link.href = PROMO_BOTTOM.link;
+        } else {
+          link.removeAttribute('href');
+          link.style.cursor = 'default';
+        }
+        wrap.classList.add('is-visible');
+      },
+      ()=>{ /* 画像が見つからなければ何も表示しない */ }
+    );
+  })();
 
   /* ── 月干支一覧モーダル ── */
   const NENKAN = {
